@@ -1319,23 +1319,25 @@ class YAS3FS(LoggingMixIn, Operations):
 
     def check_cache_size(self):
 
-        logger.debug("check_cache_size")
+        logger.info("check_cache_size")
 
         while self.cache_entries:
             time.sleep(self.cache_check_interval)
-            continue
 
-            logger.debug("check_cache_size get_memory_usage")
+            logger.info("check_cache_size get_memory_usage")
             num_entries, mem_size, disk_size = self.cache.get_memory_usage()
 
             purge = False
             if num_entries > self.cache_entries:
+                logger.info("to many entries: %i > %i" % (num_entries,self.cache_entries))
                 purge = True
                 store = ''
             elif mem_size > self.cache_mem_size:
+                logger.info("mem to large: %i > %i" % (mem_size,self.cache_mem_size))
                 purge = True
                 store = 'mem'
             elif disk_size > self.cache_disk_size:
+                logger.info("disk to large: %i > %i" % (disk_size,self.cache_disk_size))
                 purge = True
                 store = 'disk'
 
