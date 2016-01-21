@@ -1291,7 +1291,9 @@ class YAS3FS(LoggingMixIn, Operations):
         logger.info("cache_check_interval: " + str(self.cache_check_interval))
 
         while self.cache_entries:
+            logger.info("check_status: start sleeping")
             time.sleep(self.cache_check_interval)
+            logger.info("check_status: end sleeping")
             continue
 
             num_entries, mem_size, disk_size = self.cache.get_memory_usage()
