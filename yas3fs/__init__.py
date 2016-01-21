@@ -389,6 +389,10 @@ class FSCache():
              for store in FSData.stores:
                 self.size[store] = 0
     def get_memory_usage(self):
+        logger.info("get_memory_usage invoked")
+        logger.info("entries: " + str(len(self.entries)))
+        for store in FSData.stores:
+            logger.info("size store %s: %i" % (store,self.size[store]) )
         return [ len(self.entries) ] + [ self.size[store] for store in FSData.stores ]
     def get_cache_filename(self, path):
         return self.cache_path + '/files' + path.encode('utf-8') # path begins with '/'
@@ -1296,7 +1300,9 @@ class YAS3FS(LoggingMixIn, Operations):
             logger.info("check_status: end sleeping")
             continue
 
+            logger.info("check_status: getting mem usage")
             num_entries, mem_size, disk_size = self.cache.get_memory_usage()
+            logger.info("check_status: got mem usage")
             s3q = 0 ### Remove duplicate code
             for i in range(0, self.s3_num):
                 s3q += self.s3_queue[i].qsize()
