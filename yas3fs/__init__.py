@@ -1287,7 +1287,8 @@ class YAS3FS(LoggingMixIn, Operations):
 
     def check_status(self):
         logger.info("check_status")
-        logger.info("cache_entries: " + self.cache_check_interval)
+        logger.info("cache_entries: " + str(self.cache_entries))
+        logger.info("cache_check_interval: " + str(self.cache_check_interval))
 
         while self.cache_entries:
             time.sleep(self.cache_check_interval)
