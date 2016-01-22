@@ -1293,7 +1293,6 @@ class YAS3FS(LoggingMixIn, Operations):
         logger.info("cache_check_interval: " + str(self.cache_check_interval))
 
         while self.cache_entries:
-            time.sleep(self.cache_check_interval)
 
             num_entries, mem_size, disk_size = self.cache.get_memory_usage()
             s3q = 0 ### Remove duplicate code
@@ -1322,7 +1321,6 @@ class YAS3FS(LoggingMixIn, Operations):
         logger.info("check_cache_size")
 
         while self.cache_entries:
-            time.sleep(self.cache_check_interval)
 
             logger.info("check_cache_size get_memory_usage")
             num_entries, mem_size, disk_size = self.cache.get_memory_usage()
@@ -1346,21 +1344,21 @@ class YAS3FS(LoggingMixIn, Operations):
                 path = self.cache.lru.popleft() # Take a path on top of the LRU (least used)
                 with self.cache.get_lock(path):
                     if self.cache.has(path): # Path may be deleted before I acquire the lock
-                        logger.debug("check_cache_size purge: '%s' '%s' ?" % (store, path))
+                        logger.info("check_cache_size purge: '%s' '%s' ?" % (store, path))
                         data = self.cache.get(path, 'data')
                         full_delete = False
                         if (not data) or (data and (store == '' or data.store == store) and (not data.has('open')) and (not data.has('change'))):
                             if store == '':
-                                logger.debug("check_cache_size purge: '%s' '%s' OK full" % (store, path))
+                                logger.info("check_cache_size purge: '%s' '%s' OK full" % (store, path))
                                 self.cache.delete(path) # Remove completely from cache
                                 full_delete = True
                             elif data:
-                                logger.debug("check_cache_size purge: '%s' '%s' OK data" % (store, path))
+                                logger.info("check_cache_size purge: '%s' '%s' OK data" % (store, path))
                                 self.cache.delete(path, 'data') # Just remove data
                             else:
-                                logger.debug("check_cache_size purge: '%s' '%s' KO no data" % (store, path))
+                                logger.info("check_cache_size purge: '%s' '%s' KO no data" % (store, path))
                         else:
-                            logger.debug("check_cache_size purge: '%s' '%s' KO data? %s open? %s change? %s"
+                            logger.info("check_cache_size purge: '%s' '%s' KO data? %s open? %s change? %s"
                                          % (store, path, data != None, data and data.has('open'), data and data.has('change')))
                         if not full_delete:
                             # The entry is still there, let's append it again at the end of the RLU list
@@ -1368,21 +1366,21 @@ class YAS3FS(LoggingMixIn, Operations):
             else:
                 # Check for unused locks to be removed
                 for path in self.cache.unused_locks.keys():
-                    logger.debug("check_cache_size purge unused lock: '%s'" % (path))
+                    logger.info("check_cache_size purge unused lock: '%s'" % (path))
                     try:
                         with self.cache.lock and self.cache.new_locks[path]:
                             del self.cache.new_locks[path]
-                            logger.debug("check_cache_size purge unused lock: '%s' deleted" % (path))
+                            logger.info("check_cache_size purge unused lock: '%s' deleted" % (path))
                     except KeyError:
                         pass
                     try:
                         del self.cache.unused_locks[path]
-                        logger.debug("check_cache_size purge unused lock: '%s' removed from list" % (path))
+                        logger.info("check_cache_size purge unused lock: '%s' removed from list" % (path))
                     except KeyError:
                         pass
                 # Look for unused locks to be removed at next iteration (if still "new")
                 for path in self.cache.new_locks.keys():
-                    logger.debug("check_cache_size purge unused lock: '%s' added to list" % (path))
+                    logger.info("check_cache_size purge unused lock: '%s' added to list" % (path))
                     self.cache.unused_locks[path] = True # Just a flag
 
                 # Sleep for some time
