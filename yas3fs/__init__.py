@@ -1080,8 +1080,10 @@ class YAS3FS(LoggingMixIn, Operations):
                 data = self.cache.get(path, 'data')
                 if data and data.has('change'):
                     self.upload_to_s3(path, data)
-                self.cache.wait_until_cleared(path)
-                self.cache.delete(path)
+        # purge cache entries
+        for path in self.cache.entries:
+            self.cache.wait_until_cleared(path)
+            self.cache.delete(path)
 
     def destroy(self, path):
         logger.debug("destroy '%s'" % (path))
